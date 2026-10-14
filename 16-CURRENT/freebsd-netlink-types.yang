@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: BSD-2-Clause
+//
+// Copyright (c) 2026 Pouria Mousavizadeh Tehrani <pouria@FreeBSD.org>
+
+module freebsd-netlink-types {
+  yang-version 1.1;
+  namespace "urn:freebsd:yang:freebsd-netlink-types";
+  prefix nlt;
+
+  import freebsd-netlink-extensions {
+    prefix nlx;
+  }
+
+  organization
+    "FreeBSD";
+  contact
+    "Pouria Mousavizadeh Tehrani <pouria@FreeBSD.org>";
+  description
+    "The types shared by the descriptions of FreeBSD's netlink(4)
+     protocols: addresses as the attributes carry them, interface
+     indexes, address families, FIB numbers and durations.";
+
+  revision 2026-10-14 {
+    description
+      "Initial revision, for FreeBSD 16.0-CURRENT (84f790e5b6cc).";
+  }
+
+  typedef ip-address {
+    type binary {
+      length "4 | 16";
+    }
+    description
+      "An IPv4 or an IPv6 address in network byte order, the length
+       telling which.  An IPv6 link-local address carries no scope:
+       the interface index of the message gives it.  snl(3) reads
+       it into a struct sockaddr (snl_attr_get_ip()).";
+  }
+
+  typedef ifindex {
+    type uint32;
+    description
+      "An interface index, as if_nametoindex(3) gives it. 0 is none.";
+  }
+
+  typedef fibnum {
+    type uint32;
+    description
+      "A routing table: a FIB number from 0 to net.fibs - 1, 0 being
+       the default one (RT_DEFAULT_FIB), 0xffffffff (RT_ALL_FIBS)
+       means every table where that is allowed.";
+  }
+
+  typedef address-family {
+    type enumeration {
+      enum unspec {
+        value 0;
+        description
+          "AF_UNSPEC.";
+      }
+      enum inet {
+        value 2;
+        description
+          "AF_INET: IPv4.";
+      }
+      enum link {
+        value 18;
+        description
+          "AF_LINK: link-level.";
+      }
+      enum inet6 {
+        value 28;
+        description
+          "AF_INET6: IPv6.";
+      }
+    }
+    nlx:width 8;
+    nlx:name-prefix "AF_";
+    description
+      "An address family, AF_* of <sys/socket.h>; one byte on the
+       wire, as in the fixed headers.";
+  }
+
+  typedef seconds {
+    type uint32;
+    description
+      "A duration in seconds.";
+  }
+}
